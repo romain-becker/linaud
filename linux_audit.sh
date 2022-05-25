@@ -18,13 +18,13 @@ echo "${CYAN}\n[Grub password]${RESET}"
 z=$(cat /boot/grub/grub.cfg | grep password)
 
 if [ -n "$z" ]; then
-    echo "${GREEN}--OK--${RESET}"
+    echo "${GREEN}OK${RESET}"
 else
-    echo "${RED}--NO PASSWD--${RESET}"
+    echo "${RED}NO PASSWD${RESET}"
 fi
 
 echo "${CYAN}\n[IOMMU]${RESET}"
-cat /etc/default/grub | grep GRUB_CMDLINE_LINUX
+cat /etc/default/grub | grep --color=auto GRUB_CMDLINE_LINUX
 
 echo "${CYAN}\n[Dynamic loading of kernel modules]${RESET}"
 sysctl kernel.modules_disabled
@@ -51,7 +51,18 @@ echo "${CYAN}\n[SWAP]${RESET}"
 swapon -s 
 
 echo "${CYAN}\n[Partitioning]${RESET}"
-lsblk
+lsblk 
+
+echo "${CYAN}\n[Partition encryption]${RESET}"
+blkid /dev/nvme0n1 | grep --color=auto PTTYPE
+
+echo "${CYAN}\n[/boot]${RESET}"
+
+echo "${PURPLE}[ls -lrtha /boot/]${RESET}"
+ls --color=auto -lrtha /boot/
+
+echo "${PURPLE}[ls -lrth / | grep boot]${RESET}"
+ls -lrth / | grep --color=auto boot
 
 echo "${CYAN}\n[Accounts With Empty Passwords]${RESET}"
 a=$(awk -F: '($2 == "") {print}' /etc/shadow)
@@ -73,7 +84,7 @@ else
 fi
 
 echo "${CYAN}\n[Ipv6]${RESET}"
-sysctl -a|grep disable_ipv6
+sysctl -a| grep --color=auto disable_ipv6
 
 
 echo "${CYAN}\n[fail2ban]${RESET}"
