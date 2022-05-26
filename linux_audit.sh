@@ -21,70 +21,64 @@ ${RESET}
 "
 
 
-
-
-#######################################################
 echo "${BLUE}\n[+] DETAILS ${RESET}"
 echo "---------------------------------------------"
 
-echo -n "${WHITE}OS : ${RESET}" 
-cat /etc/os-release | grep PRETTY | cut -d= -f2-
+echo -n "${WHITE}OS : ${RESET}" && cat /etc/os-release | grep PRETTY | cut -d= -f2-
 
-echo -n "${WHITE}Host : ${RESET}" 
-cat /proc/sys/kernel/hostname
+echo -n "${WHITE}Host : ${RESET}" && cat /proc/sys/kernel/hostname
 
-echo -n "${WHITE}Kernel : ${RESET}" 
-uname -r 
+echo -n "${WHITE}Kernel : ${RESET}" && uname -r 
 
-echo -n "${WHITE}Uptime : ${RESET}"
-uptime | cut -c 15-18
+echo -n "${WHITE}Uptime : ${RESET}" && uptime | cut -c 15-18
 
-echo -n "${WHITE}Packages : ${RESET}"
-dpkg --list | wc --lines
+echo -n "${WHITE}Packages : ${RESET}" && dpkg --list | wc --lines
 
-echo -n "${WHITE}Shell : ${RESET}"
-$SHELL --version
+echo -n "${WHITE}Shell : ${RESET}" && $SHELL --version
 
-echo -n "${WHITE}Resolution : ${RESET}"
-xdpyinfo | awk '/dimensions/ {print $2}'
-#######################################################
+echo -n "${WHITE}Resolution : ${RESET}" && xdpyinfo | awk '/dimensions/ {print $2}'
 
 
-
-
-#######################################################
 echo "${GREEN}\n[+] START-UP PROCESS ${RESET}"
 echo -n "---------------------------------------------"
 echo "${CYAN}\n[GRUB protection]${RESET}"
-ls -lrtha /etc/grub.d/
+ls -lrtha --color=auto /etc/grub.d/
 
 echo -n "${CYAN}\n[GRUB password] --> ${RESET}"
-z=$(cat /boot/grub/grub.cfg | grep password)
-if [ -n "$z" ]; then
+a=$(cat /boot/grub/grub.cfg | grep password)
+if [ -n "$a" ]; then
     echo "${GREEN}[YES]${RESET}"
 else
     echo "${RED}[NO]${RESET}"
 fi
 
 echo -n "${CYAN}\n[IOMMU] --> ${RESET}"
-o=$(cat /etc/default/grub | grep iommu=force)
-if [ -n "$o" ]; then
+b=$(cat /etc/default/grub | grep iommu=force)
+if [ -n "$b" ]; then
     echo "${GREEN}[YES]${RESET}"
 else
     echo "${RED}[NO]${RESET}"
 fi
 
-echo -n "${CYAN}\n[Dynamic loading of kernel modules] --> ${RESET}"
-l=$(sysctl kernel.modules_disabled | grep 1)
-if [ -n "$l" ]; then
+echo -n "${CYAN}\n[Dynamic loading of kernel modules is disable] --> ${RESET}"
+c=$(sysctl kernel.modules_disabled | grep 1)
+if [ -n "$c" ]; then
     echo "${GREEN}[YES]${RESET}"
 else
     echo "${RED}[NO]${RESET}"
 fi
+
+echo -n "${CYAN}\n[Yama security module is enable] --> ${RESET}"
+d=$(sysctl kernel.yama.ptrace_scope | grep 1)
+if [ -n "$d" ]; then
+    echo "${GREEN}[YES]${RESET}"
+else
+    echo "${RED}[NO]${RESET}"
+fi 
 
 echo -n "${CYAN}\n[Access to virtual consoles] --> ${RESET}"
-y=$(grep "^[^#;]" /etc/pam.d/login | grep pam_securetty.so)
-if [ -n "$y" ]; then
+e=$(grep "^[^#;]" /etc/pam.d/login | grep pam_securetty.so)
+if [ -n "$e" ]; then
     echo "${GREEN}[YES]${RESET}"
 else
     echo "${GREEN}[NO]${RESET}"
@@ -103,29 +97,25 @@ stat /sbin/init | grep File: | sed 's/ //g' | cut -d: -f2-
 
 
 
-
-#######################################################
-
 echo "${BLUE}\n[+] SYSTEM ${RESET}"
 echo -n "---------------------------------------------"
 
 echo -n "${CYAN}\n[CPU flags]${RESET}"
 echo -n "${CYAN}\n[pae] --> ${RESET}"
-x=$(grep ^flags /proc/cpuinfo | head -n1 | egrep --color=auto 'pae')
-if [ -n "$x" ]; then
+f=$(grep ^flags /proc/cpuinfo | head -n1 | egrep --color=auto 'pae')
+if [ -n "$f" ]; then
     echo -n "${GREEN}YES${RESET}"
 else
     echo -n "${RED}NO${RESET}"
 fi
 
 echo -n "${CYAN}\n[nx]  --> ${RESET}"
-x=$(grep ^flags /proc/cpuinfo | head -n1 | egrep --color=auto 'nx')
-if [ -n "$x" ]; then
+g=$(grep ^flags /proc/cpuinfo | head -n1 | egrep --color=auto 'nx')
+if [ -n "$g" ]; then
     echo "${GREEN}YES${RESET}"
 else
     echo "${RED}NO${RESET}"
 fi
-
 
 
 echo "${CYAN}\n[SWAP]${RESET}"
@@ -146,9 +136,9 @@ echo "${PURPLE}[ls -lrth / | grep boot]${RESET}"
 ls -lrth / | grep --color=auto boot
 
 echo "${CYAN}\n[Accounts With Empty Passwords]${RESET}"
-a=$(awk -F: '($2 == "") {print}' /etc/shadow)
-if [ -n "$a" ]; then
-    echo "$a"
+h=$(awk -F: '($2 == "") {print}' /etc/shadow)
+if [ -n "$h" ]; then
+    echo "$h"
 else
     echo "${GREEN}[NO]${RESET}"
 fi
@@ -163,10 +153,9 @@ echo "${CYAN}\n[/etc/login.defs ]${RESET}"
 cat /etc/login.defs | grep --color=auto PASS
 
 echo "${CYAN}\n[Accounts UID Set To 0]${RESET}"
-b=$(awk -F: '($3 == "0") {print}' /etc/passwd)
-
-if [ -n "$b" ]; then
-    echo "$b"
+i=$(awk -F: '($3 == "0") {print}' /etc/passwd)
+if [ -n "$i" ]; then
+    echo "$i"
 else
     echo "[0]"
 fi
@@ -178,18 +167,78 @@ ls -lrtha /usr/bin/sudo
 echo "${CYAN}\n[Umask]${RESET}"
 umask
 
-echo "${CYAN}\n[Ipv6]${RESET}"
-sysctl -a| grep --color=auto disable_ipv6
-
-
 echo "${CYAN}\n[fail2ban]${RESET}"
-c=$(dpkg -l | grep fail2ban)
-
-if [ -n "$c" ]; then
+j=$(dpkg -l | grep fail2ban)
+if [ -n "$j" ]; then
     /etc/init.d/fail2ban status | grep Active
 else
     echo "Package is not install"
 fi
+
+
+
+echo "${BLUE}\n[+] Network sysctl ${RESET}"
+echo -n "---------------------------------------------"
+
+echo "${CYAN}\n[Ipv4]${RESET}"
+sysctl -a | grep -w net.ipv4.ip_forward 
+sysctl -a | grep net.ipv4.conf.all.rp_filter
+sysctl -a | grep net.ipv4.conf.default.rp_filter
+sysctl -a | grep net.ipv4.conf.all.send_redirects
+sysctl -a | grep net.ipv4.conf.default.send_redirects
+sysctl -a | grep net.ipv4.conf.all.accept_source_route
+sysctl -a | grep net.ipv4.conf.default.accept_source_route
+sysctl -a | grep net.ipv4.conf.all.accept_redirects
+sysctl -a | grep net.ipv4.conf.all.secure_redirects
+sysctl -a | grep net.ipv4.conf.default.accept_redirects
+sysctl -a | grep net.ipv4.conf.default.secure_redirects
+sysctl -a | grep net.ipv4.conf.all.log_martians
+sysctl -a | grep net.ipv4.tcp_rfc1337
+sysctl -a | grep net.ipv4.icmp_ignore_bogus_error_responses
+sysctl -a | grep net.ipv4.ip_local_port_range
+sysctl -a | grep net.ipv4.tcp_syncookies
+
+
+
+echo "${CYAN}\n[Ipv6]${RESET}"
+sysctl -a | grep net.ipv6.conf.all.disable_ipv6
+sysctl -a | grep net.ipv6.conf.all.router_solicitations
+sysctl -a | grep net.ipv6.conf.default.router_solicitations
+sysctl -a | grep net.ipv6.conf.all.accept_ra_rtr_pref
+sysctl -a | grep net.ipv6.conf.default.accept_ra_rtr_pref
+sysctl -a | grep net.ipv6.conf.all.accept_ra_pinfo
+sysctl -a | grep net.ipv6.conf.default.accept_ra_pinfo
+sysctl -a | grep net.ipv6.conf.all.accept_ra_defrtr
+sysctl -a | grep net.ipv6.conf.default.accept_ra_defrtr
+sysctl -a | grep net.ipv6.conf.all.autoconf
+sysctl -a | grep net.ipv6.conf.default.autoconf
+sysctl -a | grep net.ipv6.conf.all.accept_redirects
+sysctl -a | grep net.ipv6.conf.default.accept_redirects
+sysctl -a | grep net.ipv6.conf.all.accept_source_route
+sysctl -a | grep net.ipv6.conf.default.accept_source_route
+sysctl -a | grep net.ipv6.conf.all.max_addresses
+sysctl -a | grep net.ipv6.conf.default.max_addresses
+
+
+echo "${BLUE}\n[+] System sysctl ${RESET}"
+echo "---------------------------------------------"
+
+sysctl -a | grep kernel.sysrq
+sysctl -a | grep fs.suid_dumpable
+sysctl -a | grep fs.protected_symlinks
+sysctl -a | grep fs.protected_hardlinks
+sysctl -a | grep kernel.randomize_va_space
+sysctl -a | grep vm.mmap_min_addr
+sysctl -a | grep kernel.pid_max
+sysctl -a | grep kernel.kptr_restrict
+sysctl -a | grep kernel.dmesg_restrict
+sysctl -a | grep kernel.perf_event_paranoid
+sysctl -a | grep kernel.perf_event_max_sample_rate
+sysctl -a | grep kernel.perf_cpu_time_max_percent
+
+
+
+
 
 
 
