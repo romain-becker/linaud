@@ -20,17 +20,18 @@ fi
 }
 
 
-echo " 
-${BLUE}
-██      ██ ███    ██  █████  ██    ██ ██████  
-██      ██ ████   ██ ██   ██ ██    ██ ██   ██ 
-██      ██ ██ ██  ██ ███████ ██    ██ ██   ██ 
-██      ██ ██  ██ ██ ██   ██ ██    ██ ██   ██ 
-███████ ██ ██   ████ ██   ██  ██████  ██████  
-${RESET}
-"
+# echo " 
+# ${BLUE}
+# ██      ██ ███    ██  █████  ██    ██ ██████  
+# ██      ██ ████   ██ ██   ██ ██    ██ ██   ██ 
+# ██      ██ ██ ██  ██ ███████ ██    ██ ██   ██ 
+# ██      ██ ██  ██ ██ ██   ██ ██    ██ ██   ██ 
+# ███████ ██ ██   ████ ██   ██  ██████  ██████  
+# ${RESET}
+# "
 
-echo "${GREEN}------------------------------[${RESET}${BLUE} SYSTEM INFORMATION ${RESET}${GREEN}]------------------------------${RESET}"
+#SYSTEM INFORMATION
+echo "${GREEN}------------------------------[${RESET}${BLUE} SYSTEM INFORMATION ${RESET}${GREEN}]------------------------------${RESET}\n"
 
 echo -n "${WHITE}OS : ${RESET}" && cat /etc/os-release | grep PRETTY | cut -d= -f2-
 
@@ -50,220 +51,144 @@ echo -n "${WHITE}Last update : ${RESET}" && cat /var/log/apt/history.log | grep 
 
 pause 
 
+#CPU 
+echo "${GREEN}------------------------------[${RESET}${BLUE} CPU ${RESET}${GREEN}]------------------------------${RESET}"
 
+echo -n "${CYAN}\n[CPU flags]${RESET}"
+
+echo -n "${CYAN}\n[pae] --> ${RESET}"
+pae=$(grep ^flags /proc/cpuinfo | head -n1 | egrep --color=auto 'pae')
+if [ -n "$pae" ]; then echo -n "${GREEN}YES${RESET}"; else echo -n "${RED}NO${RESET}"; fi
+
+echo -n "${CYAN}\n[nx]  --> ${RESET}"
+nx=$(grep ^flags /proc/cpuinfo | head -n1 | egrep --color=auto 'nx')
+if [ -n "$nx" ]; then echo "${GREEN}YES${RESET}"; else echo "${RED}NO${RESET}"; fi
+
+pause 
+
+#GRUB
 echo "${GREEN}------------------------------[${RESET}${BLUE} GRUB ${RESET}${GREEN}]------------------------------${RESET}"
 
-echo "${CYAN}\n[/etc/grub.d/]${RESET}"
-ls -lrtha --color=auto /etc/grub.d/
+echo "${CYAN}\n[/etc/grub.d/]${RESET}" && ls -lrtha --color=auto /etc/grub.d/
 
-echo "${CYAN}\n[/boot/grub]${RESET}"
-ls -lrtha --color=auto /boot/grub
+echo "${CYAN}\n[/boot/grub]${RESET}" && ls -lrtha --color=auto /boot/grub
 
 echo -n "${CYAN}\n[GRUB password] --> ${RESET}"
-a=$(cat /boot/grub/grub.cfg | grep password)
-if [ -n "$a" ]; then
-    echo "${GREEN}[YES]${RESET}"
-else
-    echo "${RED}[NO]${RESET}"
-fi
+grub_passwd=$(cat /boot/grub/grub.cfg | grep password)
+if [ -n "$grub_passwd" ]; then echo "${GREEN}[YES]${RESET}"; else echo "${RED}[NO]${RESET}"; fi
+
+echo -n "${CYAN}\n[IOMMU] --> ${RESET}"
+b=$(cat /etc/default/grub | grep iommu=force)
+if [ -n "$b" ]; then echo "${GREEN}[YES]${RESET}"; else echo "${RED}[NO]${RESET}"; fi
+
+pause 
+
+#KERNEL
+echo "${GREEN}------------------------------[${RESET}${BLUE} KERNEL ${RESET}${GREEN}]------------------------------${RESET}"
+
+
+echo -n "${CYAN}\n[Dynamic loading of kernel modules is disable] --> ${RESET}"
+dynamic_loading_kernel_module=$(sysctl kernel.modules_disabled | grep 1)
+if [ -n "$dynamic_loading_kernel_module" ]; then echo "${GREEN}[YES]${RESET}"; else echo "${RED}[NO]${RESET}"; fi
+
+echo -n "${CYAN}\n[Yama security module is enable] --> ${RESET}"
+yame=$(sysctl kernel.yama.ptrace_scope | grep 1)
+if [ -n "$yama" ]; then echo "${GREEN}[YES]${RESET}"; else echo "${RED}[NO]${RESET}"; fi 
+
+echo -n "${CYAN}\n[Magic SysRq key] --> ${RESET}" && cat /proc/sys/kernel/sysrq
+
+echo "${CYAN}\n[Sysctl]${RESET}"
+
+sysctl -a | grep kernel.sysrq
+sysctl -a | grep fs.suid_dumpable
+sysctl -a | grep fs.protected_symlinks
+sysctl -a | grep fs.protected_hardlinks
+sysctl -a | grep kernel.randomize_va_space
+sysctl -a | grep vm.mmap_min_addr
+sysctl -a | grep kernel.pid_max
+sysctl -a | grep kernel.kptr_restrict
+sysctl -a | grep kernel.dmesg_restrict
+sysctl -a | grep kernel.perf_event_paranoid
+sysctl -a | grep kernel.perf_event_max_sample_rate
+sysctl -a | grep kernel.perf_cpu_time_max_percent
 
 
 pause 
 
+#PARTITIONING
+echo "${GREEN}------------------------------[${RESET}${BLUE} PARTITIONING ${RESET}${GREEN}]------------------------------${RESET}"
 
+echo "${CYAN}\n[Partitioning]${RESET}" && lsblk 
 
+echo "${CYAN}\n[/etc/fstab]${RESET}" && egrep -v '^\s*#' /etc/fstab
 
-echo -n "${CYAN}\n[IOMMU] --> ${RESET}"
-b=$(cat /etc/default/grub | grep iommu=force)
-if [ -n "$b" ]; then
-    echo "${GREEN}[YES]${RESET}"
-else
-    echo "${RED}[NO]${RESET}"
-fi
+echo "${CYAN}\n[SWAP]${RESET}" && swapon -s 
 
-echo -n "${CYAN}\n[Dynamic loading of kernel modules is disable] --> ${RESET}"
-c=$(sysctl kernel.modules_disabled | grep 1)
-if [ -n "$c" ]; then
-    echo "${GREEN}[YES]${RESET}"
-else
-    echo "${RED}[NO]${RESET}"
-fi
+echo "${CYAN}\n[Partition encryption]${RESET}" && blkid /dev/nvme0n1 | grep --color=auto PTTYPE
 
-echo -n "${CYAN}\n[Yama security module is enable] --> ${RESET}"
-d=$(sysctl kernel.yama.ptrace_scope | grep 1)
-if [ -n "$d" ]; then
-    echo "${GREEN}[YES]${RESET}"
-else
-    echo "${RED}[NO]${RESET}"
-fi 
+pause
 
-echo -n "${CYAN}\n[Access to virtual consoles] --> ${RESET}"
-e=$(grep "^[^#;]" /etc/pam.d/login | grep pam_securetty.so)
-if [ -n "$e" ]; then
-    echo "${GREEN}[YES]${RESET}"
-else
-    echo "${GREEN}[NO]${RESET}"
-fi
-
-echo -n "${CYAN}\n[Magic SysRq key] --> ${RESET}"
-cat /proc/sys/kernel/sysrq
-
-
-echo "${CYAN}\n[/etc/fstab]${RESET}"
-egrep -v '^\s*#' /etc/fstab
-
-#Use a distribution with an init system other than systemd. systemd contains a lot of unnecessary attack surface and inserts a considerable amount of complexity into the most privileged user space component
-echo -n "${CYAN}\n[Init system] --> ${RESET}"
-stat /sbin/init | grep File: | sed 's/ //g' | cut -d: -f2-
-
-# echo "${CYAN}\n[Multi-user.target services]${RESET}"
-# ls -lrtha /etc/systemd/system/multi-user.target.wants/
-
-
-
-
-echo "${BLUE}\n[+] SYSTEM ${RESET}"
-echo -n "---------------------------------------------"
-
-echo -n "${CYAN}\n[CPU flags]${RESET}"
-echo -n "${CYAN}\n[pae] --> ${RESET}"
-f=$(grep ^flags /proc/cpuinfo | head -n1 | egrep --color=auto 'pae')
-if [ -n "$f" ]; then
-    echo -n "${GREEN}YES${RESET}"
-else
-    echo -n "${RED}NO${RESET}"
-fi
-
-echo -n "${CYAN}\n[nx]  --> ${RESET}"
-g=$(grep ^flags /proc/cpuinfo | head -n1 | egrep --color=auto 'nx')
-if [ -n "$g" ]; then
-    echo "${GREEN}YES${RESET}"
-else
-    echo "${RED}NO${RESET}"
-fi
-
-
-echo "${CYAN}\n[SWAP]${RESET}"
-swapon -s 
-
-echo "${CYAN}\n[Partitioning]${RESET}"
-lsblk 
-
-echo "${CYAN}\n[Partition encryption]${RESET}"
-blkid /dev/nvme0n1 | grep --color=auto PTTYPE
-
-echo "${CYAN}\n[/boot]${RESET}"
-
-echo "${PURPLE}[ls -lrtha /boot/]${RESET}"
-ls --color=auto -lrtha /boot/
-
-echo "${PURPLE}[ls -lrth / | grep boot]${RESET}"
-ls -lrth / | grep --color=auto boot
-
-echo "${CYAN}\n[Accounts With Empty Passwords]${RESET}"
-h=$(awk -F: '($2 == "") {print}' /etc/shadow)
-if [ -n "$h" ]; then
-    echo "$h"
-else
-    echo "${GREEN}[NO]${RESET}"
-fi
-
-echo "${CYAN}\n[Nologin accounts]${RESET}"
-cat /etc/passwd | grep -v nologin
-
-echo "${CYAN}\n[$USER chage details]${RESET}"
-chage -l $USER
-
-echo "${CYAN}\n[/etc/login.defs ]${RESET}"
-egrep -v '^\s*#' /etc/login.defs | grep PASS
-
-
-echo "${CYAN}\n[Accounts UID Set To 0]${RESET}"
-i=$(awk -F: '($3 == "0") {print}' /etc/passwd)
-if [ -n "$i" ]; then
-    echo "$i"
-else
-    echo "[0]"
-fi
-
-
-echo "${CYAN}\n[Sudo privileges]${RESET}"
-ls -lrtha /usr/bin/sudo
-
-echo "${CYAN}\n[Umask]${RESET}"
-umask
+#PACKAGES
+echo "${GREEN}------------------------------[${RESET}${BLUE} PACKAGES ${RESET}${GREEN}]------------------------------${RESET}"
 
 echo "${CYAN}\n[fail2ban]${RESET}"
-j=$(dpkg -l | grep fail2ban)
-if [ -n "$j" ]; then
-    /etc/init.d/fail2ban status | grep Active
-else
-    echo "Package is not install"
-fi
-
+fail2ban=$(dpkg -l | grep fail2ban)
+if [ -n "$fail2ban" ]; then /etc/init.d/fail2ban status | grep Active; else echo "Package is not install"; fi
 
 echo "${CYAN}\n[clamav]${RESET}"
-jj=$(dpkg -l | grep clamav)
-if [ -n "$jj" ]; then
-    echo "Package is install"
-else
-    echo "Package is not install"
-fi
+clamav=$(dpkg -l | grep clamav)
+if [ -n "$clamav" ]; then echo "Package is install"; else echo "Package is not install"; fi
 
 echo "${CYAN}\n[clamtk]${RESET}"
-jjj=$(dpkg -l | grep clamtk)
-if [ -n "$jjj" ]; then
-    echo "Package is install"
-else
-    echo "Package is not install"
-fi
+clamtk=$(dpkg -l | grep clamtk)
+if [ -n "$clamtk" ]; then echo "Package is install"; else echo "Package is not install"; fi
 
 echo "${CYAN}\n[lynis]${RESET}"
-jjjj=$(dpkg -l | grep lynis)
-if [ -n "$jjjj" ]; then
-    echo "Package is install"
-else
-    echo "Package is not install"
-fi
+lynis=$(dpkg -l | grep lynis)
+if [ -n "$lynis" ]; then echo "Package is install"; else echo "Package is not install"; fi
 
 echo "${CYAN}\n[chkrootkit]${RESET}"
-jjjjj=$(dpkg -l | grep chkrootkit)
-if [ -n "$jjjjj" ]; then
-    echo "Package is install"
-else
-    echo "Package is not install"
-fi
+chkrootkit=$(dpkg -l | grep chkrootkit)
+if [ -n "$chkrootkit" ]; then echo "Package is install"; else echo "Package is not install"; fi
 
 echo "${CYAN}\n[rkhunter]${RESET}"
-jjjjjj=$(dpkg -l | grep rkhunter)
-if [ -n "$jjjjjj" ]; then
-    echo "Package is install"
-else
-    echo "Package is not install"
-fi
+rkhunter=$(dpkg -l | grep rkhunter)
+if [ -n "$rkhunter" ]; then echo "Package is install"; else echo "Package is not install"; fi
 
 echo "${CYAN}\n[tiger]${RESET}"
-jjjjjjj=$(dpkg -l | grep tiger)
-if [ -n "$jjjjjjj" ]; then
-    echo "Package is install"
-else
-    echo "Package is not install"
-fi
+tiger=$(dpkg -l | grep tiger)
+if [ -n "$tiger" ]; then echo "Package is install"; else echo "Package is not install"; fi
 
 echo "${CYAN}\n[yasat]${RESET}"
-jjjjjjjj=$(dpkg -l | grep yasat)
-if [ -n "$jjjjjjjj" ]; then
-    echo "Package is install"
-else
-    echo "Package is not install"
-fi
+yasat=$(dpkg -l | grep yasat)
+if [ -n "$yasat" ]; then echo "Package is install"; else echo "Package is not install"; fi
 
 
+echo "${CYAN}\n[iptables]${RESET}"
+iptables=$(dpkg -l | grep iptables)
+if [ -n "$iptables" ]; then echo "Package is install"; else echo "Package is not install"; fi
+
+echo "${CYAN}\n[ufw]${RESET}"
+ufw=$(dpkg -l | grep ufw)
+if [ -n "$ufw" ]; then echo "Package is install"; else echo "Package is not install"; fi
+
+echo "${CYAN}\n[nftables]${RESET}"
+nftables=$(dpkg -l | grep nftables)
+if [ -n "$nftables" ]; then echo "Package is install"; else echo "Package is not install"; fi
+
+echo "${CYAN}\n[firewalld]${RESET}"
+firewalld=$(dpkg -l | grep firewalld)
+if [ -n "$firewalld" ]; then echo "Package is install"; else echo "Package is not install"; fi
+
+echo "${CYAN}\n[bpfilter]${RESET}"
+bpfilter=$(dpkg -l | grep bpfilter)
+if [ -n "$bpfilter" ]; then echo "Package is install"; else echo "Package is not install"; fi
 
 
+pause 
 
-echo "${BLUE}\n[+] Network sysctl ${RESET}"
-echo -n "---------------------------------------------"
+#NETWORK
+echo "${GREEN}------------------------------[${RESET}${BLUE} NETWORK ${RESET}${GREEN}]------------------------------${RESET}"
 
 echo "${CYAN}\n[Ipv4]${RESET}"
 sysctl -a | grep -w net.ipv4.ip_forward 
@@ -282,8 +207,6 @@ sysctl -a | grep net.ipv4.tcp_rfc1337
 sysctl -a | grep net.ipv4.icmp_ignore_bogus_error_responses
 sysctl -a | grep net.ipv4.ip_local_port_range
 sysctl -a | grep net.ipv4.tcp_syncookies
-
-
 
 echo "${CYAN}\n[Ipv6]${RESET}"
 sysctl -a | grep net.ipv6.conf.all.disable_ipv6
@@ -305,20 +228,43 @@ sysctl -a | grep net.ipv6.conf.all.max_addresses
 sysctl -a | grep net.ipv6.conf.default.max_addresses
 
 
-echo "${BLUE}\n[+] System sysctl ${RESET}"
-echo "---------------------------------------------"
-
-sysctl -a | grep kernel.sysrq
-sysctl -a | grep fs.suid_dumpable
-sysctl -a | grep fs.protected_symlinks
-sysctl -a | grep fs.protected_hardlinks
-sysctl -a | grep kernel.randomize_va_space
-sysctl -a | grep vm.mmap_min_addr
-sysctl -a | grep kernel.pid_max
-sysctl -a | grep kernel.kptr_restrict
-sysctl -a | grep kernel.dmesg_restrict
-sysctl -a | grep kernel.perf_event_paranoid
-sysctl -a | grep kernel.perf_event_max_sample_rate
-sysctl -a | grep kernel.perf_cpu_time_max_percent
+pause 
 
 
+echo -n "${CYAN}\n[Access to virtual consoles] --> ${RESET}"
+virtual_consoles=$(grep "^[^#;]" /etc/pam.d/login | grep pam_securetty.so)
+if [ -n "$virtual_consoles" ]; then echo "${GREEN}[YES]${RESET}"; else echo "${GREEN}[NO]${RESET}"; fi
+
+
+#Use a distribution with an init system other than systemd. systemd contains a lot of unnecessary attack surface and inserts a considerable amount of complexity into the most privileged user space component
+echo -n "${CYAN}\n[Init system] --> ${RESET}" && stat /sbin/init | grep File: | sed 's/ //g' | cut -d: -f2-
+
+# echo "${CYAN}\n[Multi-user.target services]${RESET}"
+# ls -lrtha /etc/systemd/system/multi-user.target.wants/
+
+
+echo "${CYAN}\n[/boot]${RESET}"
+
+echo "${PURPLE}[ls -lrtha /boot/]${RESET}" && ls --color=auto -lrtha /boot/
+
+echo "${PURPLE}[ls -lrth / | grep boot]${RESET}" && ls -lrth / | grep --color=auto boot
+
+echo "${CYAN}\n[Accounts With Empty Passwords]${RESET}"
+empty_passwd=$(awk -F: '($2 == "") {print}' /etc/shadow)
+if [ -n "$empty_passwd" ]; then echo "$empty_passwd"; else echo "${GREEN}[NO]${RESET}"; fi
+
+echo "${CYAN}\n[Nologin accounts]${RESET}" && cat /etc/passwd | grep -v nologin
+
+echo "${CYAN}\n[$USER chage details]${RESET}" && chage -l $USER
+
+echo "${CYAN}\n[/etc/login.defs ]${RESET}" && egrep -v '^\s*#' /etc/login.defs | grep PASS
+
+
+echo "${CYAN}\n[Accounts UID Set To 0]${RESET}"
+uid=$(awk -F: '($3 == "0") {print}' /etc/passwd)
+if [ -n "$uid" ]; then echo "$uid"; else echo "[0]"; fi
+
+
+echo "${CYAN}\n[Sudo privileges]${RESET}" && ls -lrtha /usr/bin/sudo
+
+echo "${CYAN}\n[Umask]${RESET}" && umask
