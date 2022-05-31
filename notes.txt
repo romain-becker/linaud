@@ -10,4 +10,4 @@ Check /etc/security/limits.conf
 View if a firewall is install --> iptables / ufw / nftables / firewalld / bpfilter 
 Search for .bak file 
 
-
+ADD release date of OS && sudo -l && id && sudo version 

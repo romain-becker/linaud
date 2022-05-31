@@ -8,10 +8,20 @@ WHITE='\033[1;37m'
 GREY='\033[1;38m'
 RESET='\033[0m'
 
+NOPAUSE='no'
+
+pause () {
+if [ $NOPAUSE = "no" ]
+    then
+	    echo ""
+	    echo "${WHITE}Press ENTER to continue Ctrl/C to quit${RESET}"
+	    read void
+fi
+}
 
 
 echo " 
-${CYAN}
+${BLUE}
 ██      ██ ███    ██  █████  ██    ██ ██████  
 ██      ██ ████   ██ ██   ██ ██    ██ ██   ██ 
 ██      ██ ██ ██  ██ ███████ ██    ██ ██   ██ 
@@ -20,9 +30,7 @@ ${CYAN}
 ${RESET}
 "
 
-
-echo "${BLUE}\n[+] DETAILS ${RESET}"
-echo "---------------------------------------------"
+echo "${GREEN}------------------------------[${RESET}${BLUE} SYSTEM INFORMATION ${RESET}${GREEN}]------------------------------${RESET}"
 
 echo -n "${WHITE}OS : ${RESET}" && cat /etc/os-release | grep PRETTY | cut -d= -f2-
 
@@ -40,10 +48,16 @@ echo -n "${WHITE}Resolution : ${RESET}" && xdpyinfo | awk '/dimensions/ {print $
 
 echo -n "${WHITE}Last update : ${RESET}" && cat /var/log/apt/history.log | grep 'End-Date' | tail -1
 
-echo "${GREEN}\n[+] START-UP PROCESS ${RESET}"
-echo -n "---------------------------------------------"
-echo "${CYAN}\n[GRUB protection]${RESET}"
+pause 
+
+
+echo "${GREEN}------------------------------[${RESET}${BLUE} GRUB ${RESET}${GREEN}]------------------------------${RESET}"
+
+echo "${CYAN}\n[/etc/grub.d/]${RESET}"
 ls -lrtha --color=auto /etc/grub.d/
+
+echo "${CYAN}\n[/boot/grub]${RESET}"
+ls -lrtha --color=auto /boot/grub
 
 echo -n "${CYAN}\n[GRUB password] --> ${RESET}"
 a=$(cat /boot/grub/grub.cfg | grep password)
@@ -52,6 +66,12 @@ if [ -n "$a" ]; then
 else
     echo "${RED}[NO]${RESET}"
 fi
+
+
+pause 
+
+
+
 
 echo -n "${CYAN}\n[IOMMU] --> ${RESET}"
 b=$(cat /etc/default/grub | grep iommu=force)
