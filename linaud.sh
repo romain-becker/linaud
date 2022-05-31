@@ -38,6 +38,7 @@ echo -n "${WHITE}Shell : ${RESET}" && $SHELL --version
 
 echo -n "${WHITE}Resolution : ${RESET}" && xdpyinfo | awk '/dimensions/ {print $2}'
 
+echo -n "${WHITE}Last update : ${RESET}" && cat /var/log/apt/history.log | grep 'End-Date' | tail -1
 
 echo "${GREEN}\n[+] START-UP PROCESS ${RESET}"
 echo -n "---------------------------------------------"
@@ -86,6 +87,10 @@ fi
 
 echo -n "${CYAN}\n[Magic SysRq key] --> ${RESET}"
 cat /proc/sys/kernel/sysrq
+
+
+echo "${CYAN}\n[/etc/fstab]${RESET}"
+egrep -v '^\s*#' /etc/fstab
 
 #Use a distribution with an init system other than systemd. systemd contains a lot of unnecessary attack surface and inserts a considerable amount of complexity into the most privileged user space component
 echo -n "${CYAN}\n[Init system] --> ${RESET}"
@@ -150,7 +155,8 @@ echo "${CYAN}\n[$USER chage details]${RESET}"
 chage -l $USER
 
 echo "${CYAN}\n[/etc/login.defs ]${RESET}"
-cat /etc/login.defs | grep --color=auto PASS
+egrep -v '^\s*#' /etc/login.defs | grep PASS
+
 
 echo "${CYAN}\n[Accounts UID Set To 0]${RESET}"
 i=$(awk -F: '($3 == "0") {print}' /etc/passwd)
@@ -174,6 +180,65 @@ if [ -n "$j" ]; then
 else
     echo "Package is not install"
 fi
+
+
+echo "${CYAN}\n[clamav]${RESET}"
+jj=$(dpkg -l | grep clamav)
+if [ -n "$jj" ]; then
+    echo "Package is install"
+else
+    echo "Package is not install"
+fi
+
+echo "${CYAN}\n[clamtk]${RESET}"
+jjj=$(dpkg -l | grep clamtk)
+if [ -n "$jjj" ]; then
+    echo "Package is install"
+else
+    echo "Package is not install"
+fi
+
+echo "${CYAN}\n[lynis]${RESET}"
+jjjj=$(dpkg -l | grep lynis)
+if [ -n "$jjjj" ]; then
+    echo "Package is install"
+else
+    echo "Package is not install"
+fi
+
+echo "${CYAN}\n[chkrootkit]${RESET}"
+jjjjj=$(dpkg -l | grep chkrootkit)
+if [ -n "$jjjjj" ]; then
+    echo "Package is install"
+else
+    echo "Package is not install"
+fi
+
+echo "${CYAN}\n[rkhunter]${RESET}"
+jjjjjj=$(dpkg -l | grep rkhunter)
+if [ -n "$jjjjjj" ]; then
+    echo "Package is install"
+else
+    echo "Package is not install"
+fi
+
+echo "${CYAN}\n[tiger]${RESET}"
+jjjjjjj=$(dpkg -l | grep tiger)
+if [ -n "$jjjjjjj" ]; then
+    echo "Package is install"
+else
+    echo "Package is not install"
+fi
+
+echo "${CYAN}\n[yasat]${RESET}"
+jjjjjjjj=$(dpkg -l | grep yasat)
+if [ -n "$jjjjjjjj" ]; then
+    echo "Package is install"
+else
+    echo "Package is not install"
+fi
+
+
 
 
 
@@ -235,13 +300,5 @@ sysctl -a | grep kernel.dmesg_restrict
 sysctl -a | grep kernel.perf_event_paranoid
 sysctl -a | grep kernel.perf_event_max_sample_rate
 sysctl -a | grep kernel.perf_cpu_time_max_percent
-
-
-
-
-
-
-
-
 
 
