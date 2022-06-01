@@ -246,6 +246,16 @@ cat /etc/ssh/sshd_config | grep X11Forwarding
 
 pause 
 
+echo "${GREEN}------------------------------[${RESET}${BLUE} SUDO ${RESET}${GREEN}]------------------------------${RESET}"
+
+echo "${CYAN}\n[Sudo version]${RESET}" && sudo -V | grep -m1 "" 
+
+echo "${CYAN}\n[Sudo privileges]${RESET}" && ls -lrtha /usr/bin/sudo
+
+echo "${CYAN}\n[Sudo -l]${RESET}" && sudo -l 
+
+pause 
+
 echo "${GREEN}------------------------------[${RESET}${BLUE} OTHERS ${RESET}${GREEN}]------------------------------${RESET}"
 
 echo -n "${CYAN}\n[SELinux] --> ${RESET}" && sestatus 
@@ -281,8 +291,6 @@ echo "${CYAN}\n[/etc/login.defs ]${RESET}" && egrep -v '^\s*#' /etc/login.defs |
 echo "${CYAN}\n[Accounts UID Set To 0]${RESET}"
 uid=$(awk -F: '($3 == "0") {print}' /etc/passwd)
 if [ -n "$uid" ]; then echo "$uid"; else echo "[0]"; fi
-
-echo "${CYAN}\n[Sudo privileges]${RESET}" && ls -lrtha /usr/bin/sudo
 
 echo "${CYAN}\n[Umask]${RESET}" && umask
 

@@ -1,13 +1,8 @@
-Check SELinux status --> sestatus 
-Check SSH config --> PermitRootLogin && PermitEmptyPasswords && DefaultPort ?? && Disable protocol 1 and change to protocol 2 && ClientAliveInterval && ClientAliveCountMax && AllowUsers && AllowGroups && Disable X11Forwarding   
+Check SSH config   
 Check network  
 Check open ports --> netstat -antp OR netstat -tulpn
 Check password policy --> /etc/pam.d/common-password 
-Check files right --> /etc/shadow & /etc/passwd & /etc/sudoers 
-Check cronjobs --> /etc/crontab 
 Check binaries files 
 Check /etc/security/limits.conf
-View if a firewall is install --> iptables / ufw / nftables / firewalld / bpfilter 
 Search for .bak file 
-
 ADD release date of OS && sudo -l && id && sudo version 
