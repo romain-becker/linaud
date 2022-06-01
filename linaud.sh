@@ -131,56 +131,56 @@ pause
 #PACKAGES
 echo "${GREEN}------------------------------[${RESET}${BLUE} PACKAGES ${RESET}${GREEN}]------------------------------${RESET}"
 
-echo "${CYAN}\n[fail2ban]${RESET}"
+echo -n "${CYAN}\n[fail2ban] --> ${RESET}"
 fail2ban=$(dpkg -l | grep fail2ban)
 if [ -n "$fail2ban" ]; then /etc/init.d/fail2ban status | grep Active; else echo "Package is not install"; fi
 
-echo "${CYAN}\n[clamav]${RESET}"
+echo -n "${CYAN}\n[clamav] --> ${RESET}"
 clamav=$(dpkg -l | grep clamav)
 if [ -n "$clamav" ]; then echo "Package is install"; else echo "Package is not install"; fi
 
-echo "${CYAN}\n[clamtk]${RESET}"
+echo -n "${CYAN}\n[clamtk] --> ${RESET}"
 clamtk=$(dpkg -l | grep clamtk)
 if [ -n "$clamtk" ]; then echo "Package is install"; else echo "Package is not install"; fi
 
-echo "${CYAN}\n[lynis]${RESET}"
+echo -n "${CYAN}\n[lynis] --> ${RESET}"
 lynis=$(dpkg -l | grep lynis)
 if [ -n "$lynis" ]; then echo "Package is install"; else echo "Package is not install"; fi
 
-echo "${CYAN}\n[chkrootkit]${RESET}"
+echo -n "${CYAN}\n[chkrootkit] --> ${RESET}"
 chkrootkit=$(dpkg -l | grep chkrootkit)
 if [ -n "$chkrootkit" ]; then echo "Package is install"; else echo "Package is not install"; fi
 
-echo "${CYAN}\n[rkhunter]${RESET}"
+echo -n "${CYAN}\n[rkhunter] --> ${RESET}"
 rkhunter=$(dpkg -l | grep rkhunter)
 if [ -n "$rkhunter" ]; then echo "Package is install"; else echo "Package is not install"; fi
 
-echo "${CYAN}\n[tiger]${RESET}"
+echo -n "${CYAN}\n[tiger] --> ${RESET}"
 tiger=$(dpkg -l | grep tiger)
 if [ -n "$tiger" ]; then echo "Package is install"; else echo "Package is not install"; fi
 
-echo "${CYAN}\n[yasat]${RESET}"
+echo -n "${CYAN}\n[yasat] --> ${RESET}"
 yasat=$(dpkg -l | grep yasat)
 if [ -n "$yasat" ]; then echo "Package is install"; else echo "Package is not install"; fi
 
 
-echo "${CYAN}\n[iptables]${RESET}"
+echo -n "${CYAN}\n[iptables] --> ${RESET}"
 iptables=$(dpkg -l | grep iptables)
 if [ -n "$iptables" ]; then echo "Package is install"; else echo "Package is not install"; fi
 
-echo "${CYAN}\n[ufw]${RESET}"
+echo -n "${CYAN}\n[ufw] --> ${RESET}"
 ufw=$(dpkg -l | grep ufw)
 if [ -n "$ufw" ]; then echo "Package is install"; else echo "Package is not install"; fi
 
-echo "${CYAN}\n[nftables]${RESET}"
+echo -n "${CYAN}\n[nftables] --> ${RESET}"
 nftables=$(dpkg -l | grep nftables)
 if [ -n "$nftables" ]; then echo "Package is install"; else echo "Package is not install"; fi
 
-echo "${CYAN}\n[firewalld]${RESET}"
+echo -n "${CYAN}\n[firewalld] --> ${RESET}"
 firewalld=$(dpkg -l | grep firewalld)
 if [ -n "$firewalld" ]; then echo "Package is install"; else echo "Package is not install"; fi
 
-echo "${CYAN}\n[bpfilter]${RESET}"
+echo -n "${CYAN}\n[bpfilter] --> ${RESET}"
 bpfilter=$(dpkg -l | grep bpfilter)
 if [ -n "$bpfilter" ]; then echo "Package is install"; else echo "Package is not install"; fi
 
@@ -227,21 +227,40 @@ sysctl -a | grep net.ipv6.conf.default.accept_source_route
 sysctl -a | grep net.ipv6.conf.all.max_addresses
 sysctl -a | grep net.ipv6.conf.default.max_addresses
 
+echo "${CYAN}\n[OpenPorts]${RESET}"
+netstat -antp
 
 pause 
 
+echo "${GREEN}------------------------------[${RESET}${BLUE} SSH ${RESET}${GREEN}]------------------------------${RESET}"
+
+cat /etc/ssh/sshd_config | grep PermitRootLogin
+cat /etc/ssh/sshd_config | grep PermitEmptyPasswords
+cat /etc/ssh/sshd_config | grep DefaultPort
+cat /etc/ssh/sshd_config | grep Protocol
+cat /etc/ssh/sshd_config | grep ClientAliveInterval
+cat /etc/ssh/sshd_config | grep ClientAliveCountMax
+cat /etc/ssh/sshd_config | grep AllowUsers
+cat /etc/ssh/sshd_config | grep AllowGroups
+cat /etc/ssh/sshd_config | grep X11Forwarding
+
+pause 
+
+echo "${GREEN}------------------------------[${RESET}${BLUE} OTHERS ${RESET}${GREEN}]------------------------------${RESET}"
+
+echo -n "${CYAN}\n[SELinux] --> ${RESET}" && sestatus 
+
+echo -n "${CYAN}\n[AppArmor] --> ${RESET}" && aa-status
 
 echo -n "${CYAN}\n[Access to virtual consoles] --> ${RESET}"
 virtual_consoles=$(grep "^[^#;]" /etc/pam.d/login | grep pam_securetty.so)
 if [ -n "$virtual_consoles" ]; then echo "${GREEN}[YES]${RESET}"; else echo "${GREEN}[NO]${RESET}"; fi
-
 
 #Use a distribution with an init system other than systemd. systemd contains a lot of unnecessary attack surface and inserts a considerable amount of complexity into the most privileged user space component
 echo -n "${CYAN}\n[Init system] --> ${RESET}" && stat /sbin/init | grep File: | sed 's/ //g' | cut -d: -f2-
 
 # echo "${CYAN}\n[Multi-user.target services]${RESET}"
 # ls -lrtha /etc/systemd/system/multi-user.target.wants/
-
 
 echo "${CYAN}\n[/boot]${RESET}"
 
@@ -259,12 +278,29 @@ echo "${CYAN}\n[$USER chage details]${RESET}" && chage -l $USER
 
 echo "${CYAN}\n[/etc/login.defs ]${RESET}" && egrep -v '^\s*#' /etc/login.defs | grep PASS
 
-
 echo "${CYAN}\n[Accounts UID Set To 0]${RESET}"
 uid=$(awk -F: '($3 == "0") {print}' /etc/passwd)
 if [ -n "$uid" ]; then echo "$uid"; else echo "[0]"; fi
 
-
 echo "${CYAN}\n[Sudo privileges]${RESET}" && ls -lrtha /usr/bin/sudo
 
 echo "${CYAN}\n[Umask]${RESET}" && umask
+
+echo "${CYAN}\n[etc/pam.d/common-password]${RESET}" && grep -v '^\s*#' /etc/pam.d/common-password
+
+#echo "${CYAN}\n[etc/security/limits.conf]${RESET}" && grep -v '^\s*#' /etc/security/limits.conf
+
+
+echo "${CYAN}\n[Sensitives files]${RESET}"
+ls -l /etc/sudoers | grep --color=auto sudoers
+ls -l /etc/shadow | grep --color=auto shadow
+ls -l /etc/gshadow | grep --color=auto gshadow 
+ls -l /etc/passwd | grep --color=auto passwd 
+ls -l /etc/group | grep --color=auto group
+ls -l /proc/cmdline | grep --color=auto cmdline
+#ls -l /etc/rc.*
+ls -l /etc/profile | grep --color=auto profile
+ls -l /etc/hosts | grep --color=auto hosts
+ls -l /etc/resolv.conf | grep --color=auto resolv.conf
+
+echo "${CYAN}\n[CRON]${RESET}" && grep -v '^\s*#' /etc/crontab
