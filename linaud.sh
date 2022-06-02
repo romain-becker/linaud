@@ -17,13 +17,12 @@ else
 	ECHO='echo -e'
 fi
 
+
 if [ ${DISTRIB} = "arch" ]; then
 	CHECK_PACKAGES='pacman -Q'
 else
-	CHECK_PACKAGES='dpkg -l'
+	CHECK_PACKAGES='dpkg -l'	
 fi
-
-
 
 
 pause () {
@@ -64,7 +63,7 @@ ${ECHO} -n "${WHITE}Kernel : ${RESET}" && uname -r
 
 ${ECHO} -n "${WHITE}Uptime : ${RESET}" && uptime | cut -c 15-18
 
-${ECHO} -n "${WHITE}Packages : ${RESET}" && dpkg --list | wc --lines
+${ECHO} -n "${WHITE}Packages : ${RESET}" && if [ ${DISTRIB} = "arch" ]; then pacman -Q | wc -l; else dpkg -l | wc -l; fi
 
 ${ECHO} -n "${WHITE}Shell : ${RESET}" && $SHELL --version
 
