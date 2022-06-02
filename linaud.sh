@@ -43,11 +43,14 @@ ${BLUE}
 ${RESET}
 "
 
+
 ${ECHO} "\n"
 ${ECHO} "${GREEN} GREEN ${RESET}  GOOD configuration"
 ${ECHO} "${YELLOW} YELLOW ${RESET} OPTIONAL configuration"
 ${ECHO} "${RED} RED ${RESET}    BAD configuration"
 ${ECHO} "\n"
+
+
 
 #SYSTEM INFORMATION
 ${ECHO} "${PURPLE}------------------------------[${RESET}${BLUE} SYSTEM INFORMATION ${RESET}${PURPLE}]------------------------------${RESET}\n"
@@ -121,13 +124,14 @@ dynamic_loading_kernel_module=$(sysctl kernel.modules_disabled | grep 1)
 if [ -n "$dynamic_loading_kernel_module" ]; then ${ECHO} "${GREEN}[YES]${RESET}"; else ${ECHO} "${RED}[NO]${RESET}"; fi
 
 ${ECHO} -n "${CYAN}\n[Yama security module is enable] --> ${RESET}"
-yame=$(sysctl kernel.yama.ptrace_scope | grep 1)
+yame=$(sysctl kernel.yama.ptrace_scope | grep 1 && sysctl kernel.yama.ptrace_scope | grep 2)
 if [ -n "$yama" ]; then ${ECHO} "${GREEN}[YES]${RESET}"; else ${ECHO} "${RED}[NO]${RESET}"; fi 
 
 ${ECHO} -n "${CYAN}\n[Magic SysRq key] --> ${RESET}" && cat /proc/sys/kernel/sysrq
 
 ${ECHO} "${CYAN}\n[Sysctl]${RESET}"
-
+#ANSSI
+#https://www.ssi.gouv.fr/uploads/2016/01/linux_configuration-fr-v1.2.pdf
 sysctl -a | grep kernel.sysrq
 sysctl -a | grep fs.suid_dumpable
 sysctl -a | grep fs.protected_symlinks
@@ -140,6 +144,22 @@ sysctl -a | grep kernel.dmesg_restrict
 sysctl -a | grep kernel.perf_event_paranoid
 sysctl -a | grep kernel.perf_event_max_sample_rate
 sysctl -a | grep kernel.perf_cpu_time_max_percent
+
+#OTHERS 
+#https://www.ubuntupit.com/best-linux-hardening-security-tips-a-comprehensive-checklist/ (25.) (kernel.panic=10)
+sysctl -a | grep -w kernel.panic
+
+#https://www.cyberciti.biz/faq/linux-kernel-etcsysctl-conf-security-hardening/
+sysctl -a | grep kernel.core_uses_pid
+sysctl -a | grep fs.file-max
+
+#https://obscurix.github.io/security/kernel-hardening.html
+sysctl -a | grep kernel.unprivileged_bpf_disabled
+sysctl -a | grep net.core.bpf_jit_harden
+sysctl -a | grep kernel.kexec_load_disabled
+sysctl -a | grep vm.mmap_rnd_bits
+sysctl -a | grep vm.mmap_rnd_compat_bits
+sysctl -a | grep kernel.unprivileged_userns_clone
 
 pause 
 
@@ -217,6 +237,7 @@ pause
 ${ECHO} "${PURPLE}------------------------------[${RESET}${BLUE} NETWORK ${RESET}${PURPLE}]-----------------------------------------${RESET}"
 
 ${ECHO} "${CYAN}\n[Ipv4]${RESET}"
+#ANSSI
 sysctl -a | grep -w net.ipv4.ip_forward 
 sysctl -a | grep net.ipv4.conf.all.rp_filter
 sysctl -a | grep net.ipv4.conf.default.rp_filter
@@ -234,7 +255,20 @@ sysctl -a | grep net.ipv4.icmp_ignore_bogus_error_responses
 sysctl -a | grep net.ipv4.ip_local_port_range
 sysctl -a | grep net.ipv4.tcp_syncookies
 
+
+#OTHERS 
+#https://www.cyberciti.biz/faq/linux-kernel-etcsysctl-conf-security-hardening/
+sysctl -a | grep net.ipv4.tcp_synack_retries
+sysctl -a | grep net.ipv4.icmp_echo_ignore_broadcasts
+
+#https://obscurix.github.io/security/kernel-hardening.html
+sysctl -a | grep net.ipv4.icmp_echo_ignore_all
+sysctl -a | grep net.ipv4.tcp_timestamps
+sysctl -a | grep net.ipv4.tcp_sack
+
+
 ${ECHO} "${CYAN}\n[Ipv6]${RESET}"
+#ANSSI
 sysctl -a | grep net.ipv6.conf.all.disable_ipv6
 sysctl -a | grep net.ipv6.conf.all.router_solicitations
 sysctl -a | grep net.ipv6.conf.default.router_solicitations
@@ -253,8 +287,14 @@ sysctl -a | grep net.ipv6.conf.default.accept_source_route
 sysctl -a | grep net.ipv6.conf.all.max_addresses
 sysctl -a | grep net.ipv6.conf.default.max_addresses
 
-${ECHO} "${CYAN}\n[OpenPorts]${RESET}"
-netstat -antp
+#OTHERS 
+#https://www.cyberciti.biz/faq/linux-kernel-etcsysctl-conf-security-hardening/
+sysctl -a | grep net.ipv6.conf.default.dad_transmits
+
+${ECHO} "${CYAN}\n[OpenPorts]${RESET}" && ss -tulpn # OR netstat -antp
+
+${ECHO} "${CYAN}\n[TCP Wrappers]${RESET}" && ldd /sbin/sshd | grep libwrap
+
 
 pause 
 
