@@ -70,6 +70,14 @@ ${ECHO} -n "${WHITE}Resolution : ${RESET}" && xrandr | grep '*' |  awk '{print $
 
 ${ECHO} -n "${WHITE}Last update : ${RESET}" && if [ ${DISTRIB} = "arch" ]; then  awk 'END{sub(/\[/,""); print $1}' /var/log/pacman.log; else ls -l /var/cache/apt/pkgcache.bin | cut -d' ' -f6,7,8,9 ; fi 
 
+${ECHO} -n "${WHITE}IP address : ${RESET}" && hostname -I | awk '{print $1}'
+
+${ECHO} -n "${WHITE}MAC address : ${RESET}" && hostname -I | awk '{print $2}'
+
+${ECHO} -n "${WHITE}Administrators : ${RESET}" && cat /etc/group | grep adm | cut -d: -f4-
+
+# ${ECHO} -n "${WHITE}MAC address : ${RESET}" && arp | awk '{print $3}' | tr -d 'HWaddress' | tr '\n' ' ' 
+
 pause 
 
 #CPU 
