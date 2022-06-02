@@ -17,13 +17,11 @@ else
 	ECHO='echo -e'
 fi
 
-
 if [ ${DISTRIB} = "arch" ]; then
 	CHECK_PACKAGES='pacman -Q'
 else
 	CHECK_PACKAGES='dpkg -l'	
 fi
-
 
 pause () {
 if [ $NOPAUSE = "no" ]
@@ -46,6 +44,7 @@ ${RESET}
 "
 
 
+
 ${ECHO} "\n"
 ${ECHO} "${GREEN} GREEN ${RESET}  GOOD configuration"
 ${ECHO} "${YELLOW} YELLOW ${RESET} OPTIONAL configuration"
@@ -61,15 +60,15 @@ ${ECHO} -n "${WHITE}Host : ${RESET}" && cat /proc/sys/kernel/hostname
 
 ${ECHO} -n "${WHITE}Kernel : ${RESET}" && uname -r 
 
-${ECHO} -n "${WHITE}Uptime : ${RESET}" && uptime | cut -c 15-18
+${ECHO} -n "${WHITE}Uptime : ${RESET}" && uptime | cut -c 15-18 
 
 ${ECHO} -n "${WHITE}Packages : ${RESET}" && if [ ${DISTRIB} = "arch" ]; then pacman -Q | wc -l; else dpkg -l | wc -l; fi
 
-${ECHO} -n "${WHITE}Shell : ${RESET}" && $SHELL --version
+${ECHO} -n "${WHITE}Shell : ${RESET}" && $SHELL --version | grep -m1 linux
 
-${ECHO} -n "${WHITE}Resolution : ${RESET}" && xdpyinfo | awk '/dimensions/ {print $2}'
+${ECHO} -n "${WHITE}Resolution : ${RESET}" && xrandr | grep '*' |  awk '{print $1}' 
 
-${ECHO} -n "${WHITE}Last update : ${RESET}" && cat /var/log/apt/history.log | grep 'End-Date' | tail -1
+${ECHO} -n "${WHITE}Last update : ${RESET}" && if [ ${DISTRIB} = "arch" ]; then  awk 'END{sub(/\[/,""); print $1}' /var/log/pacman.log; else ls -l /var/cache/apt/pkgcache.bin | cut -d' ' -f6,7,8,9 ; fi 
 
 pause 
 
@@ -96,7 +95,7 @@ ${ECHO} "${CYAN}\n[/etc/grub.d/]${RESET}" && ls -lrtha --color=auto /etc/grub.d/
 ${ECHO} "${CYAN}\n[/boot/grub]${RESET}" && ls -lrtha --color=auto /boot/grub
 
 ${ECHO} -n "${CYAN}\n[GRUB password] --> ${RESET}"
-grub_passwd=$(cat /boot/grub/grub.cfg | grep password)
+grub_passwd=$(if [ ${DISTRIB} = "kali" ]; then cat /boot/grub/grub.cfg | grep password; else cat /etc/grub.d/40_custom | grep password ;fi )
 if [ -n "$grub_passwd" ]; then ${ECHO} "${GREEN}[YES]${RESET}"; else ${ECHO} "${RED}[NO]${RESET}"; fi
 
 ${ECHO} -n "${CYAN}\n[IOMMU] --> ${RESET}"
@@ -144,9 +143,9 @@ ${ECHO} "${CYAN}\n[Partitioning]${RESET}" && lsblk
 
 ${ECHO} "${CYAN}\n[/etc/fstab]${RESET}" && egrep -v '^\s*#' /etc/fstab
 
-${ECHO} "${CYAN}\n[SWAP]${RESET}" && swapon -s 
+# ${ECHO} "${CYAN}\n[SWAP]${RESET}" && swapon -s 
 
-${ECHO} "${CYAN}\n[Partition encryption]${RESET}" && blkid /dev/nvme0n1 | grep --color=auto PTTYPE
+# ${ECHO} "${CYAN}\n[Partition encryption]${RESET}" && blkid /dev/nvme0n1 | grep --color=auto PTTYPE
 
 pause
 
@@ -155,7 +154,7 @@ ${ECHO} "${PURPLE}------------------------------[${RESET}${BLUE} PACKAGES ${RESE
 
 ${ECHO} -n "${CYAN}\n[fail2ban] --> ${RESET}"
 fail2ban=$(${CHECK_PACKAGES} | grep fail2ban)
-if [ -n "$fail2ban" ]; then /etc/init.d/fail2ban status | grep Active; else ${ECHO} "Package is not install"; fi
+if [ -n "$fail2ban" ]; then /etc/init.d/fail2ban status | grep Active; else ${ECHO} "${RED}[NOT FOUND]${RESET}"; fi
 
 ${ECHO} -n "${CYAN}\n[clamav] --> ${RESET}"
 clamav=$(${CHECK_PACKAGES} | grep clamav)
@@ -184,7 +183,6 @@ if [ -n "$tiger" ]; then ${ECHO} "${GREEN}[FOUND]${RESET}"; else ${ECHO} "${RED}
 ${ECHO} -n "${CYAN}\n[yasat] --> ${RESET}"
 yasat=$(${CHECK_PACKAGES} | grep yasat)
 if [ -n "$yasat" ]; then ${ECHO} "${GREEN}[FOUND]${RESET}"; else ${ECHO} "${RED}[NOT FOUND]${RESET}"; fi
-
 
 ${ECHO} -n "${CYAN}\n[iptables] --> ${RESET}"
 iptables=$(${CHECK_PACKAGES} | grep iptables)
