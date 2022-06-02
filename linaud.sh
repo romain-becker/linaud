@@ -43,8 +43,6 @@ ${BLUE}
 ${RESET}
 "
 
-
-
 ${ECHO} "\n"
 ${ECHO} "${GREEN} GREEN ${RESET}  GOOD configuration"
 ${ECHO} "${YELLOW} YELLOW ${RESET} OPTIONAL configuration"
@@ -59,6 +57,8 @@ ${ECHO} -n "${WHITE}OS : ${RESET}" && cat /etc/os-release | grep PRETTY | cut -d
 ${ECHO} -n "${WHITE}Host : ${RESET}" && cat /proc/sys/kernel/hostname
 
 ${ECHO} -n "${WHITE}Kernel : ${RESET}" && uname -r 
+
+${ECHO} -n "${WHITE}Installation date : ${RESET}" && stat / | awk '/Birth: /{print $2}'
 
 ${ECHO} -n "${WHITE}Uptime : ${RESET}" && uptime | cut -c 15-18 
 
@@ -133,7 +133,6 @@ sysctl -a | grep kernel.perf_event_paranoid
 sysctl -a | grep kernel.perf_event_max_sample_rate
 sysctl -a | grep kernel.perf_cpu_time_max_percent
 
-
 pause 
 
 #PARTITIONING
@@ -204,7 +203,6 @@ ${ECHO} -n "${CYAN}\n[bpfilter] --> ${RESET}"
 bpfilter=$(${CHECK_PACKAGES} | grep bpfilter)
 if [ -n "$bpfilter" ]; then ${ECHO} "${GREEN}[FOUND]${RESET}"; else ${ECHO} "${RED}[NOT FOUND]${RESET}"; fi
 
-
 pause 
 
 #NETWORK
@@ -253,7 +251,7 @@ netstat -antp
 pause 
 
 #SSH
-${ECHO} "${PURPLE}------------------------------[${RESET}${BLUE} SSH ${RESET}${PURPLE}]---------------------------------------------${RESET}"
+${ECHO} "${PURPLE}------------------------------[${RESET}${BLUE} SSH ${RESET}${PURPLE}]---------------------------------------------${RESET}\n"
 
 cat /etc/ssh/sshd_config | grep PermitRootLogin
 cat /etc/ssh/sshd_config | grep PermitEmptyPasswords
