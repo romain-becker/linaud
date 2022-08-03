@@ -19,8 +19,7 @@ The NX bit (no-execute) is a technology used in CPUs to segregate areas of memor
 ### /boot.grub
 
 ### GRUB password 
-It is recommended to set a password for GRUB. 
-`grub-md5-crypt`
+It is recommended to set a password for GRUB with `grub-md5-crypt`
 
 ### IOMMU 
 
