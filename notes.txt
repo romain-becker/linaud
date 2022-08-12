@@ -1,8 +1,0 @@
-Check SSH config   
-Check network  
-Check open ports --> netstat -antp OR netstat -tulpn
-Check password policy --> /etc/pam.d/common-password 
-Check binaries files 
-Check /etc/security/limits.conf
-Search for .bak file 
-ADD release date of OS && sudo -l && id && sudo version 
