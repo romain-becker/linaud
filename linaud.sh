@@ -180,55 +180,55 @@ pause
 ${ECHO} "${PURPLE}------------------------------[${RESET}${BLUE} PACKAGES ${RESET}${PURPLE}]----------------------------------------${RESET}"
 
 ${ECHO} -n "${CYAN}\n[fail2ban] --> ${RESET}"
-fail2ban=$(${CHECK_PACKAGES} | grep fail2ban)
+fail2ban=$(${CHECK_PACKAGES} | grep fail2ban | awk '{print $1}' | grep ii)
 if [ -n "$fail2ban" ]; then /etc/init.d/fail2ban status | grep Active; else ${ECHO} "${RED}[NOT FOUND]${RESET}"; fi
 
 ${ECHO} -n "${CYAN}\n[clamav] --> ${RESET}"
-clamav=$(${CHECK_PACKAGES} | grep clamav)
+clamav=$(${CHECK_PACKAGES} | grep clamav | awk '{print $1}' | grep ii)
 if [ -n "$clamav" ]; then ${ECHO} "${GREEN}[FOUND]${RESET}"; else ${ECHO} "${RED}[NOT FOUND]${RESET}"; fi
 
 ${ECHO} -n "${CYAN}\n[clamtk] --> ${RESET}"
-clamtk=$(${CHECK_PACKAGES} | grep clamtk)
+clamtk=$(${CHECK_PACKAGES} | grep clamtk | awk '{print $1}' | grep ii)
 if [ -n "$clamtk" ]; then ${ECHO} "${GREEN}[FOUND]${RESET}"; else ${ECHO} "${RED}[NOT FOUND]${RESET}"; fi
 
 ${ECHO} -n "${CYAN}\n[lynis] --> ${RESET}"
-lynis=$(${CHECK_PACKAGES} | grep lynis)
+lynis=$(${CHECK_PACKAGES} | grep lynis | awk '{print $1}' | grep ii)
 if [ -n "$lynis" ]; then ${ECHO} "${GREEN}[FOUND]${RESET}"; else ${ECHO} "${RED}[NOT FOUND]${RESET}"; fi
 
 ${ECHO} -n "${CYAN}\n[chkrootkit] --> ${RESET}"
-chkrootkit=$(${CHECK_PACKAGES} | grep chkrootkit)
+chkrootkit=$(${CHECK_PACKAGES} | grep chkrootkit | awk '{print $1}' | grep ii)
 if [ -n "$chkrootkit" ]; then ${ECHO} "${GREEN}[FOUND]${RESET}"; else ${ECHO} "${RED}[NOT FOUND]${RESET}"; fi
 
 ${ECHO} -n "${CYAN}\n[rkhunter] --> ${RESET}"
-rkhunter=$(${CHECK_PACKAGES} | grep rkhunter)
+rkhunter=$(${CHECK_PACKAGES} | grep rkhunter | awk '{print $1}' | grep ii)
 if [ -n "$rkhunter" ]; then ${ECHO} "${GREEN}[FOUND]${RESET}"; else ${ECHO} "${RED}[NOT FOUND]${RESET}"; fi
 
 ${ECHO} -n "${CYAN}\n[tiger] --> ${RESET}"
-tiger=$(${CHECK_PACKAGES} | grep tiger)
+tiger=$(${CHECK_PACKAGES} | grep tiger | awk '{print $1}' | grep ii)
 if [ -n "$tiger" ]; then ${ECHO} "${GREEN}[FOUND]${RESET}"; else ${ECHO} "${RED}[NOT FOUND]${RESET}"; fi
 
 ${ECHO} -n "${CYAN}\n[yasat] --> ${RESET}"
-yasat=$(${CHECK_PACKAGES} | grep yasat)
+yasat=$(${CHECK_PACKAGES} | grep yasat | awk '{print $1}' | grep ii)
 if [ -n "$yasat" ]; then ${ECHO} "${GREEN}[FOUND]${RESET}"; else ${ECHO} "${RED}[NOT FOUND]${RESET}"; fi
 
 ${ECHO} -n "${CYAN}\n[iptables] --> ${RESET}"
-iptables=$(${CHECK_PACKAGES} | grep iptables)
+iptables=$(${CHECK_PACKAGES} | grep iptables | awk '{print $1}' | grep ii)
 if [ -n "$iptables" ]; then ${ECHO} "${GREEN}[FOUND]${RESET}"; else ${ECHO} "${RED}[NOT FOUND]${RESET}"; fi
 
 ${ECHO} -n "${CYAN}\n[ufw] --> ${RESET}"
-ufw=$(${CHECK_PACKAGES} | grep ufw)
+ufw=$(${CHECK_PACKAGES} | grep ufw | awk '{print $1}' | grep ii)
 if [ -n "$ufw" ]; then ${ECHO} "${GREEN}[FOUND]${RESET}"; else ${ECHO} "${RED}[NOT FOUND]${RESET}"; fi
 
 ${ECHO} -n "${CYAN}\n[nftables] --> ${RESET}"
-nftables=$(${CHECK_PACKAGES} | grep nftables)
+nftables=$(${CHECK_PACKAGES} | grep nftables | awk '{print $1}' | grep ii)
 if [ -n "$nftables" ]; then ${ECHO} "${GREEN}[FOUND]${RESET}"; else ${ECHO} "${RED}[NOT FOUND]${RESET}"; fi
 
 ${ECHO} -n "${CYAN}\n[firewalld] --> ${RESET}"
-firewalld=$(${CHECK_PACKAGES} | grep firewalld)
+firewalld=$(${CHECK_PACKAGES} | grep firewalld | awk '{print $1}' | grep ii)
 if [ -n "$firewalld" ]; then ${ECHO} "${GREEN}[FOUND]${RESET}"; else ${ECHO} "${RED}[NOT FOUND]${RESET}"; fi
 
 ${ECHO} -n "${CYAN}\n[bpfilter] --> ${RESET}"
-bpfilter=$(${CHECK_PACKAGES} | grep bpfilter)
+bpfilter=$(${CHECK_PACKAGES} | grep bpfilter | awk '{print $1}' | grep ii)
 if [ -n "$bpfilter" ]; then ${ECHO} "${GREEN}[FOUND]${RESET}"; else ${ECHO} "${RED}[NOT FOUND]${RESET}"; fi
 
 pause 
